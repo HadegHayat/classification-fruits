@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classification de Fruits avec TensorFlow Lite</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite"></script>
+</head>
+<body>
+    <h1>Classification de Fruits avec TensorFlow Lite</h1>
+    <input type="file" id="fileInput" />
+    <button onclick="predict()">Classer</button>
+    <div id="prediction"></div>
+
+    <script>
+        let model;
+
+        // Charger le modèle TFLite depuis l'URL
+        async function loadModel() {
+            model = await tflite.loadTFLiteModel('https://hadeghayat.github.io/classification-fruits/');
+            console.log("Modèle chargé");
+        }
+
+        // Prétraiter l'image téléchargée
+        function preprocessImage(image) {
+            return tf.browser.fromPixels(image)
+                .resizeNearestNeighbor([32, 32]) // Redimensionner l'image pour le modèle
+                .toFloat()
+                .expandDims(0)
+                .div(tf.scalar(255)); // Normaliser l'image
+        }
+
+        // Fonction de prédiction
+        async function predict() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const image = new Image();
+            image.onload = async function () {
+                const inputTensor = preprocessImage(image);
+                const predictions = await model.predict(inputTensor);
+                const predictedClass = predictions.argMax(-1).dataSync()[0];
+                const classNames = ["apple", "banana", "orange"]; // Vos classes de fruits
+                document.getElementById('prediction').innerText = 'Prédiction: ' + classNames[predictedClass];
+            };
+            image.src = URL.createObjectURL(file);
+        }
+
+        // Charger le modèle au début
+        loadModel();
+    </script>
+</body>
+</html>
