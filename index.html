@@ -44,23 +44,6 @@
                 try {
                     const inputTensor = preprocessImage(image);
                     const predictions = await model.predict(inputTensor);
-                    const predictedClass = predictions.argMax(-1).dataSync()[0];
-                    const classNames = ["apple", "banana", "orange"]; // Vos classes de fruits
-                    document.getElementById('prediction').innerText = 'Prédiction: ' + classNames[predictedClass];
-                } catch (error) {
-                    console.error("Erreur lors de la prédiction:", error);
-                    document.getElementById('prediction').innerText = "Erreur lors de la prédiction.";
-                }
-            };
-            if (file) {
-                image.src = URL.createObjectURL(file);
-            } else {
-                alert("Veuillez sélectionner une image d'abord.");
-            }
-        }
-
-        // Charger le modèle au début
-        loadModel();
-    </script>
-</body>
-</html>
+                    console.log("Prédictions brutes:", predictions);
+                    
+                    // Vérifiez les 
