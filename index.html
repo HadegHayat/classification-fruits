@@ -19,9 +19,9 @@
         async function loadModel() {
             try {
                 model = await tflite.loadTFLiteModel('https://hadeghayat.github.io/classification-fruits/fruits/mon_modele.tflite');
-                console.log("Modèle chargé");
+                console.log("Modèle chargé avec succès");
             } catch (error) {
-                console.error("Erreur de chargement du modèle:", error);
+                console.error("Erreur de chargement du modèle:", error.message);
                 document.getElementById('prediction').innerText = "Erreur de chargement du modèle.";
             }
         }
@@ -40,10 +40,45 @@
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
             const image = new Image();
+
+            // Fonction de chargement de l'image
             image.onload = async function () {
                 try {
+                    console.log("Image chargée, prétraitement...");
                     const inputTensor = preprocessImage(image);
+                    console.log("Tensor d'entrée prétraité:", inputTensor);
+
+                    // Prédiction avec le modèle
                     const predictions = await model.predict(inputTensor);
                     console.log("Prédictions brutes:", predictions);
-                    
-                    // Vérifiez les 
+
+                    // Vérifier la forme des prédictions
+                    if (predictions && predictions.shape) {
+                        console.log("Shape des prédictions:", predictions.shape);
+                    }
+
+                    // Trouver la classe prédite
+                    const predictedClass = predictions.argMax(-1).dataSync()[0];
+                    console.log("Classe prédite (index):", predictedClass);
+
+                    const classNames = ["apple", "banana", "orange"]; // Vos classes de fruits
+                    document.getElementById('prediction').innerText = 'Prédiction: ' + classNames[predictedClass];
+                } catch (error) {
+                    console.error("Erreur lors de la prédiction:", error.message);
+                    document.getElementById('prediction').innerText = "Erreur lors de la prédiction : " + error.message;
+                }
+            };
+
+            // Vérification si un fichier a été sélectionné
+            if (file) {
+                image.src = URL.createObjectURL(file);
+            } else {
+                alert("Veuillez sélectionner une image d'abord.");
+            }
+        }
+
+        // Charger le modèle au début
+        loadModel();
+    </script>
+</body>
+</html>
