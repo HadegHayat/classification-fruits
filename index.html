@@ -20,6 +20,7 @@
         // Charger le modèle TFLite depuis l'URL
         async function loadModel() {
             try {
+                console.log("Chargement du modèle...");
                 model = await tflite.loadTFLiteModel('https://hadeghayat.github.io/classification-fruits/fruits/mon_modele.tflite');
                 console.log("Modèle chargé avec succès");
             } catch (error) {
@@ -39,6 +40,13 @@
 
         // Fonction de prédiction
         async function predict() {
+            // Vérifier si le modèle est chargé
+            if (!model) {
+                document.getElementById('prediction').innerText = "Le modèle n'a pas été chargé correctement.";
+                console.error("Le modèle n'est pas chargé.");
+                return; // Sortir de la fonction si le modèle n'est pas chargé
+            }
+
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
             const image = new Image();
@@ -84,3 +92,4 @@
     </script>
 </body>
 </html>
+
