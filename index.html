@@ -17,8 +17,13 @@
 
         // Charger le modèle TFLite depuis l'URL
         async function loadModel() {
-            model = await tflite.loadTFLiteModel('https://hadeghayat.github.io/classification-fruits/fruits/mon_modele.tflite');
-            console.log("Modèle chargé");
+            try {
+                model = await tflite.loadTFLiteModel('https://hadeghayat.github.io/classification-fruits/fruits/mon_modele.tflite');
+                console.log("Modèle chargé");
+            } catch (error) {
+                console.error("Erreur de chargement du modèle:", error);
+                document.getElementById('prediction').innerText = "Erreur de chargement du modèle.";
+            }
         }
 
         // Prétraiter l'image téléchargée
@@ -36,13 +41,22 @@
             const file = fileInput.files[0];
             const image = new Image();
             image.onload = async function () {
-                const inputTensor = preprocessImage(image);
-                const predictions = await model.predict(inputTensor);
-                const predictedClass = predictions.argMax(-1).dataSync()[0];
-                const classNames = ["apple", "banana", "orange"]; // Vos classes de fruits
-                document.getElementById('prediction').innerText = 'Prédiction: ' + classNames[predictedClass];
+                try {
+                    const inputTensor = preprocessImage(image);
+                    const predictions = await model.predict(inputTensor);
+                    const predictedClass = predictions.argMax(-1).dataSync()[0];
+                    const classNames = ["apple", "banana", "orange"]; // Vos classes de fruits
+                    document.getElementById('prediction').innerText = 'Prédiction: ' + classNames[predictedClass];
+                } catch (error) {
+                    console.error("Erreur lors de la prédiction:", error);
+                    document.getElementById('prediction').innerText = "Erreur lors de la prédiction.";
+                }
             };
-            image.src = URL.createObjectURL(file);
+            if (file) {
+                image.src = URL.createObjectURL(file);
+            } else {
+                alert("Veuillez sélectionner une image d'abord.");
+            }
         }
 
         // Charger le modèle au début
